@@ -1,0 +1,33 @@
+TA 1 is waiting to access the database.
+TA 3 is waiting to access the database.
+TA 2 is waiting to access the database.
+TA 5 is waiting to access the database.
+TA 4 is waiting to access the database.
+TA 3 acquired semaphores 2 and 3.
+TA 3 released semaphores 2 and 3.
+TA 3 is marking student 9298 with mark 4.
+...
+TA 1 acquired semaphores 0 and 1. <- acquires semaphores
+TA 1 released semaphores 0 and 1. <- imediately releases semaphores
+TA 1 completed round 1.
+TA 1 is waiting to access the database.
+TA 5 is waiting to access the database.
+TA 3 is waiting to access the database.
+TA 2 is waiting to access the database.
+TA 5 acquired semaphores 4 and 0.
+TA 3 acquired semaphores 2 and 3.
+TA 5 released semaphores 4 and 0.
+TA 3 released semaphores 2 and 3.
+TA 5 is marking student 8902 with mark 5.
+TA 3 is marking student 5562 with mark 4.
+...
+TA 2 is marking student 8969 with mark 3.
+TA 2 is waiting to access the database.
+TA 2 acquired semaphores 1 and 2. <- acquires semaphores
+TA 2 released semaphores 1 and 2. <- imediately releases semaphores
+TA 2 completed round 3.
+All TAs have finished marking exams.
+
+The solution is deadlock/livelock free as semaphores are imediately realeased before the TA's can start marking and before the TA's complete a round. As you can see in the above example that
+once TA 1 acquires the semaphores, it imediately realeases them before TA 1 has completed a round. In this case resources are not lock once a round has been completed and every TA progresses
+if they acquire semaphores j and j + 1.

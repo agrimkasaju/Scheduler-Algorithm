@@ -1,0 +1,90 @@
+...
+TA 5 acquired semaphores 4 and 0.
+TA 5 completed round 1.
+TA 5 is waiting to access the database.
+TA 1 is waiting to access the database. <- LIVELOCK
+TA 1 acquired semaphores 0 and 1.
+TA 1 realeased semaphores 0 and 1.
+TA 1 is marking student 8678 with mark 3.
+TA 1 is waiting to access the database.
+TA 1 acquired semaphores 0 and 1.
+TA 1 realeased semaphores 0 and 1.
+TA 1 is marking student 3006 with mark 3.
+TA 1 is waiting to access the database.
+TA 1 acquired semaphores 0 and 1.
+TA 1 realeased semaphores 0 and 1.
+TA 1 is marking student 3378 with mark 2.
+TA 1 is waiting to access the database.
+TA 1 acquired semaphores 0 and 1.
+TA 1 realeased semaphores 0 and 1.
+TA 1 is marking student 2869 with mark 2.
+TA 1 is waiting to access the database.
+TA 1 acquired semaphores 0 and 1.
+TA 1 realeased semaphores 0 and 1.
+TA 1 is marking student 5734 with mark 8.
+TA 1 is waiting to access the database.
+TA 1 acquired semaphores 0 and 1.
+TA 1 realeased semaphores 0 and 1.
+TA 1 is marking student 5429 with mark 4.
+TA 1 is waiting to access the database.
+TA 1 acquired semaphores 0 and 1.
+TA 1 realeased semaphores 0 and 1.
+TA 1 is marking student 3580 with mark 1.
+TA 1 is waiting to access the database.
+TA 1 acquired semaphores 0 and 1.
+TA 1 realeased semaphores 0 and 1.
+TA 1 is marking student 3260 with mark 6.
+TA 1 is waiting to access the database.
+TA 1 acquired semaphores 0 and 1.
+TA 1 realeased semaphores 0 and 1.
+TA 1 is marking student 5167 with mark 7.
+TA 1 is waiting to access the database.
+TA 1 acquired semaphores 0 and 1.
+TA 1 realeased semaphores 0 and 1.
+TA 1 is marking student 7661 with mark 9.
+TA 1 is waiting to access the database.
+TA 1 acquired semaphores 0 and 1.
+TA 1 realeased semaphores 0 and 1.
+TA 1 is marking student 2963 with mark 3.
+TA 1 is waiting to access the database.
+TA 1 acquired semaphores 0 and 1.
+TA 1 realeased semaphores 0 and 1.
+TA 1 is marking student 0984 with mark 2.
+TA 1 is waiting to access the database.
+TA 1 acquired semaphores 0 and 1.
+TA 1 realeased semaphores 0 and 1.
+TA 1 is marking student 0320 with mark 7.
+TA 1 is waiting to access the database.
+TA 1 acquired semaphores 0 and 1.
+TA 1 realeased semaphores 0 and 1.
+TA 1 is marking student 2419 with mark 1.
+TA 1 is waiting to access the database.
+TA 1 acquired semaphores 0 and 1.
+TA 1 realeased semaphores 0 and 1.
+TA 1 is marking student 5664 with mark 10.
+TA 1 is waiting to access the database.
+TA 1 acquired semaphores 0 and 1.
+TA 1 realeased semaphores 0 and 1.
+TA 1 is marking student 3143 with mark 1.
+TA 1 is waiting to access the database.
+TA 1 acquired semaphores 0 and 1.
+TA 1 realeased semaphores 0 and 1.
+TA 1 is marking student 4102 with mark 4.
+TA 1 is waiting to access the database.
+TA 1 acquired semaphores 0 and 1.
+TA 1 realeased semaphores 0 and 1.
+TA 1 is marking student 8462 with mark 9.
+TA 1 is waiting to access the database.
+TA 1 acquired semaphores 0 and 1.
+TA 1 realeased semaphores 0 and 1.
+TA 1 is marking student 1387 with mark 6.
+TA 1 is waiting to access the database.
+TA 1 acquired semaphores 0 and 1.
+TA 1 completed round 1.
+TA 1 is waiting to access the database. <- DEADLOCK
+...
+
+The condition that leads to deadlock/livelock is when a TA acquires the semaphores and is not able to imediately release them after. It runs into a deadlock issue where the current TA 
+is waiting for the resources of the previous TA to release it's semaphores but is unable to do so when a TA is finished its round. As you can see in the above example when TA 5 acquires
+the semaphores and is unable to release them livelock occurs when TA 1 attempts to acquire the semaphores and keeps on progressing until it finishes its round and since it can't realse it's semaphores
+it's stops progressing and reaches deadlock.
