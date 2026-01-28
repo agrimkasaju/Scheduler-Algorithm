@@ -7,57 +7,49 @@
 #include <string>
 #include <vector>
 
+// --- FIX PART 1: A global mutex for console output ---
+std::mutex print_mtx; 
+
 template <typename Type>
 class Box
 {
 private:
-    Type contents;         // The item stored in the box
-    bool empty = true;     // Indicates if the box is empty
-    bool finished = false; // Indicates if the agent is done producing
+    Type contents;         
+    bool empty = true;     
+    bool finished = false; 
     std::mutex mtx;
     std::condition_variable cv;
 
 public:
-    Box() : contents(Type()), empty(true), finished(false) {} // Default constructor
+    Box() : contents(Type()), empty(true), finished(false) {}
 
-    // Put an item in the box
     void put(const Type &item)
     {
         std::unique_lock<std::mutex> lock(mtx);
-        // Wait until the box is empty to avoid overwriting
         while ( !empty ) cv.wait(lock);
         contents = item;
         empty = false;
-        // std::cout << "Box is now filled with: " << item << std::endl;
-        cv.notify_all(); // Notify chefs that the box has a new item
+        cv.notify_all();
     }
 
-    // Get an item from the box
     Type get()
     {
         std::unique_lock<std::mutex> lock(mtx);
-        // Wait until the box has an item or the agent is finished
         while ( empty && !finished ) cv.wait(lock);
 
-        // If finished and no more items, return an empty Type
-        if (empty)
-        {
-            return Type();
-        }
+        if (empty) return Type();
 
         Type item = contents;
         empty = true;
-        // std::cout << "Box is now empty. Item retrieved: " << item << std::endl;
-        cv.notify_all(); // Notify the agent that the box is empty
+        cv.notify_all();
         return item;
     }
 
-    // Signal that no more items will be produced
     void set_finished()
     {
         std::unique_lock<std::mutex> lock(mtx);
         finished = true;
-        cv.notify_all(); // Notify all waiting threads
+        cv.notify_all();
     }
 };
 
@@ -82,15 +74,17 @@ public:
         {
             int first = std::rand() % 3;
             int second;
-            do
-            {
-                second = std::rand() % 3;
-            } while (second == first);
+            do { second = std::rand() % 3; } while (second == first);
 
             std::string pair = ingredients[first] + " and " + ingredients[second];
-            std::cout << "(" << std::this_thread::get_id() << ") Agent produced: " << pair << " " << i << std::endl;
-            box.put(pair);
+            
+            // --- FIX PART 2: Lock before printing ---
+            {
+                std::lock_guard<std::mutex> lock(print_mtx);
+                std::cout << "(" << std::this_thread::get_id() << ") Agent produced: " << pair << " " << i << std::endl;
+            }
 
+            box.put(pair);
             std::this_thread::sleep_for(std::chrono::milliseconds(1000));
             i++;
         }
@@ -113,26 +107,35 @@ public:
         int i = 0;
         while (true)
         {
-            std::cout << name << "(" << std::this_thread::get_id() << ") waiting for ingredients... " << i << std::endl;
+            // --- FIX PART 3: Lock before printing ---
+            {
+                std::lock_guard<std::mutex> lock(print_mtx);
+                std::cout << name << "(" << std::this_thread::get_id() << ") waiting for ingredients... " << i << std::endl;
+            }
+
             std::string item = box.get();
 
-            if (item.empty()) // Exit if no more items will be produced
+            if (item.empty()) 
             {
+                std::lock_guard<std::mutex> lock(print_mtx);
                 std::cout << name << "(" << std::this_thread::get_id() << ") exits. No more resources available." << std::endl;
                 break;
             }
 
             if (item.find(has_ingredient) == std::string::npos)
             {
+                std::lock_guard<std::mutex> lock(print_mtx);
                 std::cout << name << "(" << std::this_thread::get_id() << ") makes and eats a sandwich with: " << item << " and " << has_ingredient << std::endl;
             }
             else
             {
-                std::cout << name << "(" << std::this_thread::get_id() << ") skips: " << item << " (owns " << has_ingredient << ")" << std::endl;
-                box.put(item); // Put back the item if not usable
+                {
+                    std::lock_guard<std::mutex> lock(print_mtx);
+                    std::cout << name << "(" << std::this_thread::get_id() << ") skips: " << item << " (owns " << has_ingredient << ")" << std::endl;
+                }
+                box.put(item); 
             }
             std::this_thread::sleep_for(std::chrono::seconds(1));
-
             i++;
         }
     }
@@ -141,22 +144,16 @@ public:
 int main(int argc, char **argv)
 {
     Box<std::string> box;
-
-    // Create the agent
     Agent<std::string> agent(box);
-
-    // Create the chefs with their respective ingredients
     Chef<std::string> bread_chef("bread", box);
     Chef<std::string> peanut_butter_chef("pb", box);
     Chef<std::string> jam_chef("jam", box);
 
-    // Start threads for the agent and chefs
     std::thread agent_thread(agent);
     std::thread bread_chef_thread(bread_chef, "Bread Chef");
     std::thread peanut_butter_chef_thread(peanut_butter_chef, "Peanut Butter Chef");
     std::thread jam_chef_thread(jam_chef, "Jam Chef");
 
-    // Join threads
     agent_thread.join();
     bread_chef_thread.join();
     peanut_butter_chef_thread.join();
